@@ -1,0 +1,7 @@
+{
+  "name": "UK Padel Finder",
+  "description": "A comprehensive directory for finding and booking Padel courts across the United Kingdom. Compare ratings, check facilities, and book your next match seamlessly.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
