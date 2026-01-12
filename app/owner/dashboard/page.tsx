@@ -777,11 +777,13 @@ export default function OwnerDashboardPage() {
                           <div>
                             <div className="text-sm font-medium text-muted-foreground mb-1">Expiry Date</div>
                             <div className="text-sm">
-                              {new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })}
+                              {subscription.current_period_end 
+                                ? new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  })
+                                : "N/A"}
                             </div>
                           </div>
                         </div>
@@ -798,11 +800,13 @@ export default function OwnerDashboardPage() {
                                     month: "long",
                                     year: "numeric",
                                   })
-                                : new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
-                                    day: "numeric",
-                                    month: "long",
-                                    year: "numeric",
-                                  })}
+                                : subscription.current_period_end 
+                                  ? new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
+                                      day: "numeric",
+                                      month: "long",
+                                      year: "numeric",
+                                    })
+                                  : "N/A"}
                             </div>
                           </div>
                         )}
@@ -813,11 +817,13 @@ export default function OwnerDashboardPage() {
                             </div>
                             <div className="text-sm text-yellow-700">
                               Your subscription will be cancelled on{" "}
-                              {new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })}
+                              {subscription.current_period_end 
+                                ? new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  })
+                                : "N/A"}
                             </div>
                           </div>
                         )}

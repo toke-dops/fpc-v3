@@ -53,6 +53,9 @@ async function syncUser() {
   console.log("");
 
   try {
+    if (!CONVEX_URL) {
+      throw new Error("CONVEX_URL environment variable is required");
+    }
     const client = new ConvexHttpClient(CONVEX_URL);
 
     const result = await client.mutation("sync_users:syncUserManually", {

@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
     console.log("✅ Auto sync successful:", result);
 
     return NextResponse.json({
-      success: true,
       ...result,
+      success: true,
     });
   } catch (error: any) {
     console.error("Error in auto-sync route:", error);

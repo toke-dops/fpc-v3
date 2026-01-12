@@ -68,6 +68,7 @@ export function AdminUsersClient() {
         name: user.name,
         email: user.email,
         role: user.role,
+        auth_provider_user_id: user.auth_provider_user_id,
       });
     }
   };

@@ -38,8 +38,9 @@ export async function POST(request: NextRequest) {
       console.log("User not found in Convex, syncing user first...");
       try {
         // Try to get user info from Clerk and sync
-        const { clerkClient } = await import("@clerk/nextjs/server");
-        const clerkUser = await clerkClient.users.getUser(userId);
+        const { clerkClient: getClerkClient } = await import("@clerk/nextjs/server");
+        const clerkClientInstance = await getClerkClient();
+        const clerkUser = await clerkClientInstance.users.getUser(userId);
         
         if (clerkUser.primaryEmailAddress?.emailAddress) {
           await convex.mutation(api.users.syncUser, {
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
     if (activeSubscription && activeSubscription.plan !== planToUse) {
       // User has active subscription with different plan - MUST schedule the change
       subscriptionStatus = "upcoming";
-      currentPeriodEnd = activeSubscription.current_period_end; // Use existing subscription's expiry date
+      currentPeriodEnd = activeSubscription.current_period_end ?? Date.now() + 30 * 24 * 60 * 60 * 1000; // Use existing subscription's expiry date or default to 30 days
       
       const planChangeType = 
         (activeSubscription.plan === "featured" && planToUse === "business") ? "Downgrade" :
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
       // Same plan - this is just updating the existing subscription
       console.log(`[Post-Purchase Sync] Same plan (${planToUse}) - updating existing subscription`);
       subscriptionStatus = activeSubscription.status === "active" ? "active" : "upcoming";
-      currentPeriodEnd = activeSubscription.current_period_end;
+      currentPeriodEnd = activeSubscription.current_period_end ?? Date.now() + 30 * 24 * 60 * 60 * 1000;
     } else if (!activeSubscription) {
       // New user with paid plan - activate immediately
       console.log(`[Post-Purchase Sync] ${planToUse} plan - activating immediately (new user, no active subscription)`);

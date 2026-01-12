@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
     console.log("✅ Fix subscription successful:", result);
 
     return NextResponse.json({
-      success: true,
       ...result,
+      success: result?.success ?? true,
     });
   } catch (error: any) {
     console.error("Error in fix-subscription route:", error);

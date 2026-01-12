@@ -3,10 +3,11 @@
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { XCircle, ArrowLeft } from "lucide-react";
+import { XCircle, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default function BillingCanceledPage() {
+function BillingCanceledPageContent() {
   const searchParams = useSearchParams();
   const clubId = searchParams.get("clubId");
 
@@ -48,5 +49,15 @@ export default function BillingCanceledPage() {
   );
 }
 
-
+export default function BillingCanceledPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <BillingCanceledPageContent />
+    </Suspense>
+  );
+}
 

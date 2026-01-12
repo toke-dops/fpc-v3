@@ -7,10 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft, Calendar, Sparkles, Star, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useUser } from "@clerk/nextjs";
 
-export default function BillingSuccessPage() {
+function BillingSuccessPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
@@ -39,12 +39,12 @@ export default function BillingSuccessPage() {
     // 3. Existing subscription
     // 4. Default to featured
     let planToSync = plan;
-    
-    if (!planToSync || planToSync === "basic") {
+
+    if (!planToSync) {
       // Check sessionStorage
       const storedPlan = sessionStorage.getItem("pending_plan_sync");
       if (storedPlan && ["business", "featured"].includes(storedPlan)) {
-        planToSync = storedPlan;
+        planToSync = storedPlan as "business" | "featured";
         console.log(`Detected plan from sessionStorage: ${planToSync}`);
         // Clear it after use
         sessionStorage.removeItem("pending_plan_sync");
@@ -58,8 +58,8 @@ export default function BillingSuccessPage() {
       }
     }
     
-    if (planToSync === "basic") {
-      console.log("Skipping sync for basic plan");
+    if (!planToSync) {
+      console.log("No plan to sync");
       setIsSyncing(false);
       return;
     }
@@ -190,11 +190,13 @@ export default function BillingSuccessPage() {
                 <p className="text-sm font-medium">Next Billing Date</p>
               </div>
               <p className="text-lg">
-                {new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                {subscription.current_period_end 
+                  ? new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "N/A"}
               </p>
             </div>
           )}
@@ -230,5 +232,15 @@ export default function BillingSuccessPage() {
   );
 }
 
-
+export default function BillingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <BillingSuccessPageContent />
+    </Suspense>
+  );
+}
 

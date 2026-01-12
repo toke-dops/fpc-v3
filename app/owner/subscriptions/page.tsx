@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, ArrowLeft, CheckCircle2, Clock, XCircle, Sparkles, Building2, Calendar, Users, BarChart3, Star, Mail, TrendingUp, Eye, Badge as BadgeIcon } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function MySubscriptionsPage() {
+function MySubscriptionsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
@@ -459,5 +459,17 @@ export default function MySubscriptionsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MySubscriptionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <MySubscriptionsPageContent />
+    </Suspense>
   );
 }

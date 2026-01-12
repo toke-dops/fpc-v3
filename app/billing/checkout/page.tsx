@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft, CheckCircle2, Sparkles, Star, Image, BarChart3, Calendar, TrendingUp, Eye, Users, Badge, Mail } from "lucide-react";
@@ -242,7 +242,7 @@ const PLAN_DETAILS = {
   },
 };
 
-export default function BillingCheckoutPage() {
+function BillingCheckoutPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, isLoaded } = useUser();
@@ -745,7 +745,9 @@ export default function BillingCheckoutPage() {
                     </div>
                   )}
                   {/* Hide other plans using PlanFilter component */}
-                  <PlanFilter plan={plan} />
+                  {plan === "business" || plan === "featured" ? (
+                    <PlanFilter plan={plan} />
+                  ) : null}
                   
                   {/* Upgrade to Featured button if on Business plan */}
                   {plan === "business" && (
@@ -801,5 +803,17 @@ export default function BillingCheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BillingCheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <BillingCheckoutPageContent />
+    </Suspense>
   );
 }

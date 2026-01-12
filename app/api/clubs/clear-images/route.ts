@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
     const result = await convex.mutation(api.clubs.clearAllImageUrls, {});
 
     return NextResponse.json({
-      success: true,
       ...result,
+      success: result?.success ?? true,
       message: `Cleared image URLs from ${result.cleared} clubs. All clubs now use Pexels images only.`,
     });
   } catch (error: any) {

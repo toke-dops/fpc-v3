@@ -21,16 +21,14 @@ export default function CityPage() {
   const citySlug = params.citySlug as string;
   
   // Use dedicated query to get the proper city name from slug
-  const cityData = useQuery(api.clubs.getCityBySlug, { slug: citySlug });
+  const cityData = useQuery(api.clubs.getCityBySlug, { citySlug });
   
   // Fallback display name while loading
-  const displayName = cityData?.name ?? slugToDisplayName(citySlug);
+  const displayName = cityData?.city ?? slugToDisplayName(citySlug);
   
   // Fetch clubs for this city (only when we have the actual city name)
-  const clubs = useQuery(
-    api.clubs.getByCity,
-    cityData?.name ? { city: cityData.name } : "skip"
-  );
+  // Use the clubs from cityData if available, otherwise use list query
+  const clubs = cityData?.clubs ?? [];
   
   // Fetch other cities for the "Other Popular Cities" section
   const otherCities = useQuery(api.clubs.getCities, { sortBy: "count", limit: 12 });
@@ -141,19 +139,25 @@ export default function CityPage() {
                     <span className="text-muted-foreground">•</span>
                     <span className="text-muted-foreground">Popular Cities:</span>
                     {otherCities
-                      .filter((c) => c.slug.toLowerCase() !== citySlug.toLowerCase())
+                      .filter((c) => {
+                        const citySlugFromName = c.city.toLowerCase().replace(/\s+/g, "-");
+                        return citySlugFromName !== citySlug.toLowerCase();
+                      })
                       .slice(0, 5)
-                      .map((city, idx) => (
-                        <span key={city.slug}>
-                          {idx > 0 && <span className="text-muted-foreground mx-1">•</span>}
-                          <Link
-                            href={`/city/${city.slug}`}
-                            className="text-primary hover:underline font-medium"
-                          >
-                            {city.name}
-                          </Link>
-                        </span>
-                      ))}
+                      .map((city, idx) => {
+                        const citySlugFromName = city.city.toLowerCase().replace(/\s+/g, "-");
+                        return (
+                          <span key={citySlugFromName}>
+                            {idx > 0 && <span className="text-muted-foreground mx-1">•</span>}
+                            <Link
+                              href={`/city/${citySlugFromName}`}
+                              className="text-primary hover:underline font-medium"
+                            >
+                              {city.city}
+                            </Link>
+                          </span>
+                        );
+                      })}
                   </>
                 )}
               </div>
@@ -182,17 +186,23 @@ export default function CityPage() {
             </h3>
             <div className="flex flex-wrap gap-2">
               {otherCities
-                .filter((c) => c.slug.toLowerCase() !== citySlug.toLowerCase())
+                .filter((c) => {
+                  const citySlugFromName = c.city.toLowerCase().replace(/\s+/g, "-");
+                  return citySlugFromName !== citySlug.toLowerCase();
+                })
                 .slice(0, 11)
-                .map((city) => (
-                  <Link
-                    key={city.slug}
-                    href={`/city/${city.slug}`}
-                    className="px-4 py-2 bg-white rounded-full border text-sm font-medium text-slate-700 hover:border-primary hover:text-primary transition-colors"
-                  >
-                    {city.name} ({city.count})
-                  </Link>
-                ))}
+                .map((city) => {
+                  const citySlugFromName = city.city.toLowerCase().replace(/\s+/g, "-");
+                  return (
+                    <Link
+                      key={citySlugFromName}
+                      href={`/city/${citySlugFromName}`}
+                      className="px-4 py-2 bg-white rounded-full border text-sm font-medium text-slate-700 hover:border-primary hover:text-primary transition-colors"
+                    >
+                      {city.city} ({city.count})
+                    </Link>
+                  );
+                })}
             </div>
           </div>
         )}

@@ -32,12 +32,20 @@ export async function POST(request: NextRequest) {
     const subscription = subscriptions[0];
 
     // Cancel subscription in Clerk (if Clerk billing API is available)
+    // Note: Clerk billing API may not be available in all plans
+    // The cancellation will be handled via webhooks when the subscription is canceled in Clerk dashboard
     try {
-      if (subscription.clerk_subscription_id && clerkClient.billing) {
-        // Use Clerk's billing API to cancel
-        await clerkClient.billing.cancelSubscriptionItem(subscription.clerk_subscription_id, {
-          endNow: false, // Cancel at end of period
-        });
+      if (subscription.clerk_subscription_id) {
+        // Attempt to cancel via Clerk billing API if available
+        // This is optional - webhooks will handle the sync
+        const client = await clerkClient();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((client as any).billing) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (client as any).billing.cancelSubscriptionItem(subscription.clerk_subscription_id, {
+            endNow: false, // Cancel at end of period
+          });
+        }
       }
     } catch (error: any) {
       console.warn("Could not cancel via Clerk API, will update Convex directly:", error.message);
@@ -48,9 +56,9 @@ export async function POST(request: NextRequest) {
     const result = await convex.mutation(api.subscriptions.cancelSubscription, {});
 
     return NextResponse.json({ 
-      success: true,
-      message: "Subscription will be canceled at the end of the billing period. You will retain access until then.",
       ...result,
+      success: result?.success ?? true,
+      message: "Subscription will be canceled at the end of the billing period. You will retain access until then.",
     });
   } catch (error: any) {
     console.error("Error canceling subscription:", error);

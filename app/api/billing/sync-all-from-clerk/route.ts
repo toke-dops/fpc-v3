@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get Clerk user to access billing information
-    const clerkUser = await clerkClient.users.getUser(userId);
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(userId);
     
     if (!clerkUser) {
       return NextResponse.json(

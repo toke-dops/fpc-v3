@@ -86,7 +86,7 @@ export function ClaimClubModal({
         // club_city_snapshot: clubCity || undefined, // Will be added back after Convex syncs
         claimant_name: formData.claimant_name,
         claimant_email: formData.claimant_email,
-        claimant_role: formData.claimant_role,
+        claimant_role: formData.claimant_role as "owner" | "manager" | "staff" | "other",
         message: formData.message,
       });
 

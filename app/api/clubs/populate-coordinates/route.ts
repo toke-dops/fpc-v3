@@ -19,9 +19,9 @@ export async function POST(request: NextRequest) {
     console.log("✅ Coordinate population complete:", result);
     
     return NextResponse.json({
+      ...result,
       success: true,
       message: `Populated coordinates for ${result.updated} clubs from maps_url, geocoded ${result.geocoded} clubs from addresses, ${result.errors} errors`,
-      ...result,
     });
   } catch (error: any) {
     console.error("❌ Error populating coordinates:", error);

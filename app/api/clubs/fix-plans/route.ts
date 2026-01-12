@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
     const result = await convex.mutation(api.clubs.fixClubPlans, {});
 
     return NextResponse.json({
-      success: true,
       ...result,
+      success: result?.success ?? true,
     });
   } catch (error: any) {
     console.error("Error fixing club plans:", error);

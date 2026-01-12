@@ -474,17 +474,19 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {topCities.map((city, index) => (
+              {topCities.map((city, index) => {
+                const citySlug = city.city.toLowerCase().replace(/\s+/g, "-");
+                return (
                 <Link
-                  key={city.slug}
-                  href={`/city/${city.slug}`}
+                  key={citySlug}
+                  href={`/city/${citySlug}`}
                   className="group p-5 bg-white rounded-2xl border shadow-sm hover:shadow-md hover:border-primary/30 transition-all opacity-0 animate-fade-in"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors truncate">
-                        {city.name}
+                        {city.city}
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         {city.count} {city.count === 1 ? "club" : "clubs"}
@@ -493,7 +495,8 @@ export default function HomePage() {
                     <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-8 text-center md:hidden">

@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { XCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
-export default function BillingFailedPage() {
+function BillingFailedPageContent() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan");
   const error = searchParams.get("error");
@@ -74,5 +76,15 @@ export default function BillingFailedPage() {
   );
 }
 
-
+export default function BillingFailedPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <BillingFailedPageContent />
+    </Suspense>
+  );
+}
 

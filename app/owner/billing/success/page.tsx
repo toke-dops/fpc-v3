@@ -5,11 +5,11 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowLeft, Calendar } from "lucide-react";
+import { CheckCircle2, ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
-export default function BillingSuccessPage() {
+function BillingSuccessPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const clubId = searchParams.get("clubId");
@@ -60,11 +60,13 @@ export default function BillingSuccessPage() {
                 <p className="text-sm font-medium">Next Billing Date</p>
               </div>
               <p className="text-lg">
-                {new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                {subscription.current_period_end 
+                  ? new Date(subscription.current_period_end).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "N/A"}
               </p>
             </div>
           )}
@@ -94,5 +96,15 @@ export default function BillingSuccessPage() {
   );
 }
 
-
+export default function BillingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <BillingSuccessPageContent />
+    </Suspense>
+  );
+}
 

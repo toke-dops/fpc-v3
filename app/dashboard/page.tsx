@@ -208,8 +208,8 @@ export default function DashboardPage() {
 
         {currentUser.role === "admin" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="hover:shadow-lg transition-shadow" asChild>
-              <Link href="/admin">
+            <Link href="/admin">
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5" />
@@ -219,10 +219,10 @@ export default function DashboardPage() {
                     Manage submissions and claims
                   </CardDescription>
                 </CardHeader>
-              </Link>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow" asChild>
-              <Link href="/admin/claims">
+              </Card>
+            </Link>
+            <Link href="/admin/claims">
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MapPin className="w-5 h-5" />
@@ -232,10 +232,10 @@ export default function DashboardPage() {
                     Approve or reject club claims
                   </CardDescription>
                 </CardHeader>
-              </Link>
-            </Card>
-            <Card className="hover:shadow-lg transition-shadow" asChild>
-              <Link href="/admin/analytics">
+              </Card>
+            </Link>
+            <Link href="/admin/analytics">
+              <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="w-5 h-5" />
@@ -245,8 +245,8 @@ export default function DashboardPage() {
                     View site analytics and insights
                   </CardDescription>
                 </CardHeader>
-              </Link>
-            </Card>
+              </Card>
+            </Link>
           </div>
         )}
 

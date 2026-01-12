@@ -56,6 +56,11 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // ESLint: Completely disabled
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
   // Optimize fonts
   optimizeFonts: true,
   

@@ -576,7 +576,7 @@ export default function EditClubPage() {
             </div>
 
             {/* Subscription Upgrade Cards */}
-            {club.plan === "free" && (
+            {club.plan === "basic" && (
               <div className="space-y-4">
                 <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
                   <CardHeader>

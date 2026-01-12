@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get Clerk user to access billing information
-    const clerkUser = await clerkClient.users.getUser(userId);
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(userId);
     
     if (!clerkUser) {
       return NextResponse.json(
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
     // We'll check if there's a way to detect active subscriptions from Clerk
     
     // Try to get organization memberships (Clerk Billing might be tied to orgs)
-    const orgMemberships = await clerkClient.users.getOrganizationMembershipList({ userId });
+    const orgMemberships = await client.users.getOrganizationMembershipList({ userId });
     
     console.log("Organization memberships:", orgMemberships.data?.length || 0);
 

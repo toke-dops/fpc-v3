@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      success: true,
       ...result,
+      success: result?.success ?? true,
     });
   } catch (error: any) {
     console.error("Error downgrading subscription:", error);
