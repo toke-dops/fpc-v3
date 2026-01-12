@@ -83,11 +83,15 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Contact Email</span>
+                  <span className="text-sm">Access to Analytics Dashboard</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Analytics Dashboard</span>
+                  <span className="text-sm">Dedicated Email Support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Priority Listing over Basic Plan</span>
                 </li>
               </ul>
               <Button className="w-full" asChild>
@@ -112,15 +116,27 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Featured placement</span>
+                  <span className="text-sm">Advert Placement</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Top of search results</span>
+                  <span className="text-sm">Top-of-List Placement</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">Boosted visibility</span>
+                  <span className="text-sm">Homepage and Special Placements</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Priority Support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Advanced Analytics (All Business Features)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">Booking Link</span>
                 </li>
               </ul>
               <Button variant="outline" className="w-full border-amber-300 text-amber-900 hover:bg-amber-50" asChild>

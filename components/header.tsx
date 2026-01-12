@@ -2,18 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Building2, Plus } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { UserButton } from "./user-button";
 import { useUser } from "@clerk/nextjs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import Image from "next/image";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -25,6 +20,7 @@ const navItems = [
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { user, isLoaded } = useUser();
 
   return (
@@ -33,11 +29,23 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-lg">
-              P
-            </div>
+            {logoError ? (
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-lg">
+                FPC
+              </div>
+            ) : (
+              <Image
+                src="/fpc-logo-v2.png"
+                alt="Find Padel Clubs"
+                width={36}
+                height={36}
+                className="h-9 w-9 object-contain"
+                priority
+                onError={() => setLogoError(true)}
+              />
+            )}
             <span className="font-bold text-xl text-foreground hidden sm:block">
-              UK Padel<span className="text-primary">Finder</span>
+              Find Padel Clubs
             </span>
           </Link>
 
@@ -59,32 +67,8 @@ export function Header() {
             ))}
           </nav>
 
-          {/* CTA Button & User Auth */}
+          {/* User Auth */}
           <div className="hidden md:flex items-center gap-4">
-            {isLoaded && user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Building2 className="w-4 h-4 mr-2" />
-                    Manage a Club
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/clubs" className="flex items-center cursor-pointer">
-                      <Building2 className="w-4 h-4 mr-2" />
-                      Claim a Club
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/sign-up-club-owner" className="flex items-center cursor-pointer">
-                      <Plus className="w-4 h-4 mr-2" />
-                      List Your Club
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
             <UserButton />
           </div>
 
@@ -121,29 +105,7 @@ export function Header() {
                 </Link>
               ))}
               {isLoaded && user && (
-                <div className="pt-2 mt-2 border-t space-y-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full">
-                        <Building2 className="w-4 h-4 mr-2" />
-                        Manage a Club
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-full">
-                      <DropdownMenuItem asChild>
-                        <Link href="/clubs" className="flex items-center cursor-pointer">
-                          <Building2 className="w-4 h-4 mr-2" />
-                          Claim a Club
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/sign-up-club-owner" className="flex items-center cursor-pointer">
-                          <Plus className="w-4 h-4 mr-2" />
-                          List Your Club
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <div className="pt-2 mt-2 border-t">
                   <div className="px-4">
                     <UserButton />
                   </div>

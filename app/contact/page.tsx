@@ -1,134 +1,59 @@
-"use client";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { Mail, Send } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Here you would typically send the form data to your backend
-    // For now, we'll just simulate a submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 3000);
-  };
-
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-3xl mb-4">Contact Us</CardTitle>
+              <h1 className="text-3xl font-black text-slate-900 mb-4">Contact Us</h1>
               <CardDescription>
                 Have a question or feedback? We'd love to hear from you!
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {submitted ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Mail className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Thank you for your message!</h3>
-                  <p className="text-muted-foreground">
-                    We'll get back to you as soon as possible.
-                  </p>
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Mail className="w-8 h-8 text-primary" />
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Your name"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="your.email@example.com"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input
-                      id="subject"
-                      type="text"
-                      value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      placeholder="What is this regarding?"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder="Your message here..."
-                      rows={6}
-                      required
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Send Message
-                      </>
-                    )}
-                  </Button>
-                </form>
-              )}
+                <h2 className="text-2xl font-bold text-slate-900 mb-4">Send us an email</h2>
+                <p className="text-muted-foreground mb-6">
+                  Please send your inquiry, feedback, or questions directly to our email address:
+                </p>
+                <div className="bg-primary/5 border-2 border-primary/20 rounded-xl p-6 mb-6">
+                  <p className="text-sm text-muted-foreground mb-2">Email us at:</p>
+                  <a 
+                    href="mailto:findpadelclubs@gmail.com"
+                    className="text-2xl font-bold text-primary hover:underline inline-flex items-center gap-2"
+                  >
+                    <Mail className="w-6 h-6" />
+                    findpadelclubs@gmail.com
+                  </a>
+                </div>
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <a href="mailto:findpadelclubs@gmail.com">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Open Email Client
+                  </a>
+                </Button>
+              </div>
 
               <div className="mt-8 pt-8 border-t">
-                <h3 className="text-lg font-semibold mb-4">Other Ways to Reach Us</h3>
-                <div className="space-y-2 text-muted-foreground">
+                <h3 className="text-lg font-semibold mb-4">What to Include</h3>
+                <div className="space-y-2 text-muted-foreground text-sm">
                   <p>
-                    <strong>Email:</strong> support@ukpadelfinder.com
+                    When contacting us, please include:
                   </p>
-                  <p className="text-sm">
-                    For club owners: If you need help with your club listing or subscription, please include your club name and email in your message.
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>Your name and contact information</li>
+                    <li>The subject of your inquiry</li>
+                    <li>Any relevant details about your question or request</li>
+                  </ul>
+                  <p className="mt-4">
+                    <strong>For club owners:</strong> If you need help with your club listing or subscription, please include your club name and email in your message.
                   </p>
                 </div>
               </div>
@@ -139,4 +64,3 @@ export default function ContactPage() {
     </div>
   );
 }
-

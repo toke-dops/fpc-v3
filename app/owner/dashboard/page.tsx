@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Eye, MousePointerClick, Users, TrendingUp, Building2, Edit, Plus, ArrowRight, Clock, CheckCircle2, XCircle, Share2, Facebook, Instagram, Linkedin, Twitter, Globe, Phone } from "lucide-react";
+import { Loader2, Eye, MousePointerClick, Users, TrendingUp, Building2, Edit, Plus, ArrowRight, Clock, CheckCircle2, XCircle, Share2, Facebook, Instagram, Linkedin, Twitter, Globe, Phone, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -25,6 +25,7 @@ export default function OwnerDashboardPage() {
   const myClaimsAndSubmissions = useQuery(api.submissions.getMyClaimsAndSubmissions);
   const mySubscriptions = useQuery(api.subscriptions.getMySubscriptions);
   const subscriptionStatus = useQuery(api.subscriptions.getUserSubscriptionStatus);
+  const myClubs = useQuery(api.owner.getMyClubs);
 
   // Redirect if not authenticated
   if (clerkLoaded && !clerkUser) {
@@ -33,7 +34,7 @@ export default function OwnerDashboardPage() {
   }
 
   // Loading state
-  if (!clerkLoaded || dashboardData === undefined || currentUser === undefined || subscriptionStatus === undefined) {
+  if (!clerkLoaded || currentUser === undefined || subscriptionStatus === undefined || myClubs === undefined) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -55,7 +56,63 @@ export default function OwnerDashboardPage() {
 
   // Check if user is club owner or owns clubs
   const isClubOwner = currentUser.role === "club_owner";
-  const ownsClubs = dashboardData && dashboardData.totalClubs > 0;
+  const ownsClubs = myClubs && myClubs.length > 0;
+
+  // Check if user has Business or Featured plan (analytics requires this)
+  const clubPlans = myClubs?.map(club => club.plan) || [];
+  const hasBusinessOrFeatured = clubPlans.includes("business") || clubPlans.includes("featured") || 
+                                subscriptionStatus === "business" || subscriptionStatus === "featured" ||
+                                currentUser.plan === "business" || currentUser.plan === "featured";
+
+  // If dashboardData query failed due to plan restriction, show upgrade prompt
+  if (dashboardData === null && ownsClubs && !hasBusinessOrFeatured) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-6 h-6 text-primary" />
+                Analytics Dashboard
+              </CardTitle>
+              <CardDescription>
+                Access to analytics requires a Business or Featured subscription plan.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <h3 className="font-semibold mb-2">Upgrade to access:</h3>
+                <ul className="space-y-1 text-sm">
+                  <li>• View detailed analytics and metrics</li>
+                  <li>• Track views, clicks, and leads</li>
+                  <li>• Monitor booking conversions</li>
+                  <li>• Access social media click data</li>
+                </ul>
+              </div>
+              <Button asChild className="w-full" size="lg">
+                <Link href="/owner/subscriptions">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Upgrade Plan
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/owner/clubs">Back to My Clubs</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // If dashboardData is still loading or undefined, show loading
+  if (dashboardData === undefined) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!isClubOwner && !ownsClubs) {
     return (
@@ -78,7 +135,7 @@ export default function OwnerDashboardPage() {
   }
 
   // Empty state - no clubs yet
-  if (dashboardData.totalClubs === 0) {
+  if (!dashboardData || dashboardData.totalClubs === 0) {
     return (
       <div className="min-h-screen bg-slate-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">

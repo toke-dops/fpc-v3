@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect } from "react";
+import Script from "next/script";
+
 /**
  * Ad Slot Component - AdSense/Mediavine Ready
  * Safe abstraction for ad slots that can be toggled off in development
@@ -9,6 +14,7 @@ interface AdSlotProps {
   style?: React.CSSProperties;
   format?: "auto" | "vertical" | "horizontal" | "rectangle";
   slot?: string; // Google AdSense ad slot ID
+  publisherId?: string; // Google AdSense publisher ID (ca-pub-XXXXXXXXXX)
 }
 
 export function AdSlot({ 
@@ -16,10 +22,26 @@ export function AdSlot({
   className = "", 
   style,
   format = "auto",
-  slot 
+  slot,
+  publisherId 
 }: AdSlotProps) {
-  // Only show ads in production
-  if (process.env.NODE_ENV !== "production") {
+  const isProduction = process.env.NODE_ENV === "production";
+  const enableDev = process.env.NEXT_PUBLIC_ENABLE_ADS_DEV === "true";
+  const showAds = isProduction || enableDev;
+
+  // Initialize AdSense ad when component mounts
+  useEffect(() => {
+    if (showAds && slot && publisherId && typeof window !== "undefined") {
+      try {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      } catch (e) {
+        console.error("AdSense initialization error:", e);
+      }
+    }
+  }, [showAds, slot, publisherId]);
+
+  // Development placeholder
+  if (!showAds) {
     return (
       <div 
         className={`bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center ${className}`}
@@ -34,31 +56,23 @@ export function AdSlot({
     );
   }
 
-  // Production: Render actual ad slot
   // Google AdSense format
-  if (slot) {
+  if (slot && publisherId) {
     return (
       <div className={`ad-slot ${className}`} style={style}>
         <ins
           className="adsbygoogle"
           style={{ display: "block", ...style }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // Replace with your AdSense publisher ID
+          data-ad-client={publisherId}
           data-ad-slot={slot}
           data-ad-format={format}
           data-full-width-responsive="true"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (adsbygoogle = window.adsbygoogle || []).push({});
-            `,
-          }}
         />
       </div>
     );
   }
 
-  // Mediavine or other ad networks
+  // Mediavine or other ad networks (placeholder div)
   return (
     <div 
       id={id}
@@ -70,22 +84,32 @@ export function AdSlot({
 }
 
 /**
- * AdSense Script Loader
- * Call this once in your root layout or _document
+ * AdSense Script Loader Component
+ * Call this once in your root layout
+ * 
+ * Usage: <AdSenseScript publisherId="ca-pub-XXXXXXXXXX" />
  */
-export function AdSenseScript() {
+interface AdSenseScriptProps {
+  publisherId?: string;
+}
+
+export function AdSenseScript({ publisherId }: AdSenseScriptProps) {
   // Only load in production
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && !process.env.NEXT_PUBLIC_ENABLE_ADS_DEV) {
+    return null;
+  }
+
+  if (!publisherId) {
+    console.warn("AdSense: No publisher ID provided");
     return null;
   }
 
   return (
-    <script
+    <Script
       async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`}
       crossOrigin="anonymous"
       strategy="lazyOnload"
     />
   );
 }
-

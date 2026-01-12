@@ -5,7 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, CheckCircle2, Sparkles, Star, Image, BarChart3, Calendar, TrendingUp, Eye, Users } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, Sparkles, Star, Image, BarChart3, Calendar, TrendingUp, Eye, Users, Badge, Mail } from "lucide-react";
 import Link from "next/link";
 import { PricingTable } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
@@ -215,8 +215,10 @@ const PLAN_DETAILS = {
     borderColor: "border-primary/20",
     features: [
       { icon: Calendar, text: "Booking Link" },
-      { icon: Users, text: "Contact Email" },
-      { icon: BarChart3, text: "Analytics Dashboard" },
+      { icon: Badge, text: "Custom Badge on Club Listings" },
+      { icon: BarChart3, text: "Access to Analytics Dashboard" },
+      { icon: Mail, text: "Dedicated Email Support" },
+      { icon: TrendingUp, text: "Priority Listing over Basic Plan" },
     ],
   },
   featured: {
@@ -228,12 +230,14 @@ const PLAN_DETAILS = {
     bgColor: "bg-purple-50",
     borderColor: "border-purple-200",
     features: [
-      { icon: Star, text: "Top of Search Results" },
-      { icon: Sparkles, text: "Featured Listings" },
-      { icon: TrendingUp, text: "Access to limited advertising positions" },
-      { icon: TrendingUp, text: "Blog Access" },
-      { icon: Eye, text: "Boosted Visibility" },
-      { icon: CheckCircle2, text: "All Business features included" },
+      { icon: Star, text: "Advert Placement" },
+      { icon: TrendingUp, text: "Top-of-List Placement" },
+      { icon: Eye, text: "Homepage and Special Placements" },
+      { icon: Mail, text: "Priority Support" },
+      { icon: BarChart3, text: "Advanced Analytics (All Business Features)" },
+      { icon: Calendar, text: "Booking Link" },
+      { icon: Badge, text: "Custom Badge on Club Listings" },
+      { icon: Users, text: "Contact Email" },
     ],
   },
 };

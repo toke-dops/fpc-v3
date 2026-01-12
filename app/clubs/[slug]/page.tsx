@@ -342,12 +342,33 @@ export default function ClubDetailPage() {
 
         <div className="absolute bottom-12 w-full">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <button
-              onClick={() => router.back()}
-              className="mb-8 flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-medium"
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
+            <div className="flex items-center gap-4 mb-8">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-medium"
+              >
+                <ChevronLeft className="w-4 h-4" /> Back
+              </button>
+              {club.city && (
+                <>
+                  <span className="text-white/40">•</span>
+                  <Link
+                    href={`/city/${generateCitySlug(club.city)}`}
+                    className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-medium"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    More clubs in {club.city}
+                  </Link>
+                </>
+              )}
+              <span className="text-white/40">•</span>
+              <Link
+                href="/clubs"
+                className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-medium"
+              >
+                All Clubs
+              </Link>
+            </div>
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>

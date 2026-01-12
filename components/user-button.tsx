@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, LayoutDashboard, Building2, CreditCard, UserCircle } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Building2, CreditCard, UserCircle, Plus } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -109,6 +109,23 @@ export function UserButton() {
               <Link href="/owner/profile" className="flex items-center">
                 <UserCircle className="mr-2 h-4 w-4" />
                 My Profile
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
+        {(!currentUser || (currentUser.role !== "club_owner" && currentUser.role !== "admin")) && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/clubs" className="flex items-center">
+                <Building2 className="mr-2 h-4 w-4" />
+                Claim a Club
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/sign-up-club-owner" className="flex items-center">
+                <Plus className="mr-2 h-4 w-4" />
+                List Your Club
               </Link>
             </DropdownMenuItem>
           </>

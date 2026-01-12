@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 
 export function Footer() {
+  const [logoError, setLogoError] = useState(false);
   return (
     <footer className="border-t bg-slate-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -8,11 +13,22 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-lg">
-                P
-              </div>
+              {logoError ? (
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-lg">
+                  FPC
+                </div>
+              ) : (
+                <Image
+                  src="/fpc-logo-v2.png"
+                  alt="Find Padel Clubs"
+                  width={36}
+                  height={36}
+                  className="h-9 w-9 object-contain"
+                  onError={() => setLogoError(true)}
+                />
+              )}
               <span className="font-bold text-xl text-foreground">
-                UK Padel<span className="text-primary">Finder</span>
+                Find Padel Clubs
               </span>
             </Link>
             <p className="text-muted-foreground text-sm max-w-sm">
@@ -77,14 +93,20 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <span className="text-sm text-muted-foreground">
+                <Link
+                  href="/advertise"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
                   Advertise with Us
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-sm text-muted-foreground">
+                <Link
+                  href="/partner-programme"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
                   Partner Programme
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
@@ -93,17 +115,17 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} UK PadelFinder. All rights reserved.
+            &copy; {new Date().getFullYear()} Find Padel Clubs. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link
-              href="#"
+              href="/privacy-policy"
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               Privacy Policy
             </Link>
             <Link
-              href="#"
+              href="/terms-of-service"
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               Terms of Service

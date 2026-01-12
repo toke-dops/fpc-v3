@@ -64,6 +64,11 @@ export const getClubAnalytics = query({
       throw new Error("Club not found or access denied");
     }
 
+    // Analytics requires Business or Featured plan
+    if (club.plan !== "business" && club.plan !== "featured" && user.plan !== "business" && user.plan !== "featured") {
+      throw new Error("Analytics requires Business or Featured plan. Please upgrade to access analytics.");
+    }
+
     const now = Date.now();
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
@@ -162,6 +167,15 @@ export const getOwnerDashboard = query({
       .query("clubs")
       .filter((q) => q.eq(q.field("owner_user_id"), user._id))
       .collect();
+
+    // Check if user has Business or Featured plan (via clubs or user plan)
+    const hasBusinessOrFeatured = clubs.some(c => c.plan === "business" || c.plan === "featured") || 
+                                  user.plan === "business" || user.plan === "featured";
+    
+    // Analytics dashboard requires Business or Featured plan
+    if (!hasBusinessOrFeatured) {
+      throw new Error("Analytics dashboard requires Business or Featured plan. Please upgrade to access analytics.");
+    }
 
     // Note: Club plan syncing should be done via mutations, not queries
     // Queries are read-only and cannot modify data

@@ -119,7 +119,7 @@ export default function PrivacyPolicyPage() {
                 <li>Withdraw consent at any time</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                To exercise these rights, please contact us at support@findpadelclubs.co.uk.
+                To exercise these rights, please contact us at findpadelclubs@gmail.com.
               </p>
             </section>
 
@@ -155,7 +155,7 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this Privacy Policy, please contact us at:
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Email: support@findpadelclubs.co.uk<br />
+                Email: findpadelclubs@gmail.com<br />
                 Website: findpadelclubs.co.uk
               </p>
             </section>

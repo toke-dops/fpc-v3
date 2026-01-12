@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, CalendarCheck, MapPin, Filter, X, ChevronDown } from "lucide-react";
+import { Search, CalendarCheck, MapPin, Filter, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import {
@@ -12,12 +12,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
 import { cn } from "@/lib/utils";
 
 interface City {
@@ -43,13 +37,13 @@ interface ClubFiltersProps {
   onMinRatingChange: (value: number) => void;
   mustHaveBooking: boolean;
   onMustHaveBookingChange: (value: boolean) => void;
-  selectedCategories: string[];
-  onCategoriesChange: (categories: string[]) => void;
+  selectedAmenities: string[];
+  onAmenitiesChange: (amenities: string[]) => void;
   searchRadius: number;
   onSearchRadiusChange: (value: number) => void;
   showRadiusFilter: boolean;
   cities: City[];
-  categories: string[];
+  amenities: string[];
   onClearFilters: () => void;
   onUseLocation: () => void;
   isLocationLoading: boolean;
@@ -79,13 +73,13 @@ export function ClubFilters({
   onMinRatingChange,
   mustHaveBooking,
   onMustHaveBookingChange,
-  selectedCategories,
-  onCategoriesChange,
+  selectedAmenities,
+  onAmenitiesChange,
   searchRadius,
   onSearchRadiusChange,
   showRadiusFilter: _showRadiusFilter,
   cities,
-  categories,
+  amenities,
   onClearFilters,
   onUseLocation,
   isLocationLoading,
@@ -178,16 +172,7 @@ export function ClubFilters({
     searchTerm ||
     minRating > 0 ||
     mustHaveBooking ||
-    selectedCategories.length > 0 ||
     searchRadius > 0;
-
-  const handleCategoryToggle = (category: string) => {
-    if (selectedCategories.includes(category)) {
-      onCategoriesChange(selectedCategories.filter((c) => c !== category));
-    } else {
-      onCategoriesChange([...selectedCategories, category]);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -302,12 +287,11 @@ export function ClubFilters({
             <span className="font-semibold">Filters</span>
             {hasActiveFilters && (
               <span className="ml-2 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
-                {[
-                  minRating > 0 ? 1 : 0,
-                  mustHaveBooking ? 1 : 0,
-                  selectedCategories.length,
-                  searchRadius > 0 ? 1 : 0,
-                ].reduce((a, b) => a + b, 0)}
+                  {[
+                    minRating > 0 ? 1 : 0,
+                    mustHaveBooking ? 1 : 0,
+                    searchRadius > 0 ? 1 : 0,
+                  ].reduce((a, b) => a + b, 0)}
               </span>
             )}
           </div>
@@ -329,8 +313,8 @@ export function ClubFilters({
             className={cn(
               "grid gap-4",
               showRadiusFilter
-                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-2"
             )}
           >
             {/* Radius Filter - only show when location is available */}
@@ -381,60 +365,6 @@ export function ClubFilters({
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Category Multi-Select */}
-            <div>
-              <Label className="mb-2 block">Category</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-between h-11"
-                  >
-                    <span className="truncate">
-                      {selectedCategories.length > 0
-                        ? `${selectedCategories.length} selected`
-                        : "All Categories"}
-                    </span>
-                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-3" align="start">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between pb-2 border-b">
-                      <Label className="text-sm font-semibold">Categories</Label>
-                      {selectedCategories.length > 0 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 px-2 text-xs"
-                          onClick={() => onCategoriesChange([])}
-                        >
-                          Clear
-                        </Button>
-                      )}
-                    </div>
-                    <div className="max-h-[200px] overflow-y-auto space-y-2">
-                      {categories.map((category) => (
-                        <div
-                          key={category}
-                          className="flex items-center space-x-2 py-1.5 cursor-pointer hover:bg-slate-50 rounded px-1 -mx-1"
-                          onClick={() => handleCategoryToggle(category)}
-                        >
-                          <Checkbox
-                            checked={selectedCategories.includes(category)}
-                            onCheckedChange={() => handleCategoryToggle(category)}
-                          />
-                          <Label className="cursor-pointer flex-1 text-sm">
-                            {category}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
             </div>
 
             {/* Online Booking */}

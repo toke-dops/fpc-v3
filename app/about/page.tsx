@@ -9,7 +9,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-3xl mb-4">About UK PadelFinder</CardTitle>
+              <h1 className="text-3xl font-black text-slate-900 mb-4">About Find Padel Clubs</h1>
               <CardDescription>
                 Your comprehensive guide to padel clubs across the United Kingdom
               </CardDescription>

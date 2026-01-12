@@ -170,7 +170,7 @@ export default function TermsOfServicePage() {
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Email: support@findpadelclubs.co.uk<br />
+                Email: findpadelclubs@gmail.com<br />
                 Website: findpadelclubs.co.uk
               </p>
             </section>

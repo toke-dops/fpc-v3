@@ -61,12 +61,12 @@ export default function CityPage() {
                 Padel Clubs in
               </p>
               <h1 className="text-3xl md:text-5xl font-black tracking-tight">
-                {displayName}
+                Padel Clubs in {displayName}
               </h1>
             </div>
           </div>
 
-          <p className="text-white/80 max-w-2xl mt-4">
+          <p className="text-white/80 max-w-2xl mt-4 leading-relaxed">
             {isLoading
               ? "Loading clubs..."
               : cityNotFound
@@ -101,21 +101,20 @@ export default function CityPage() {
           <>
             {/* SEO Intro */}
             <div className="bg-white p-6 rounded-2xl border shadow-sm mb-8">
-              <h2 className="text-lg font-bold text-slate-900 mb-2">
-                About Padel in {displayName}
-              </h2>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 Padel is rapidly growing in {displayName}, with{" "}
-                {clubs.length} {clubs.length === 1 ? "venue" : "venues"}{" "}
+                {clubs.length} {clubs.length === 1 ? "padel venue" : "padel venues"}{" "}
                 currently available. Whether you&apos;re a beginner looking to
                 try the sport or an experienced player seeking new courts,
                 you&apos;ll find great options in the area. Browse the clubs
-                below, sorted by rating, to find the perfect place to play.
+                below, sorted by rating and subscription plan, to find the perfect place to play. 
+                Featured and business plan clubs are prioritized in search results, ensuring 
+                you discover the best facilities with the most comprehensive information.
               </p>
             </div>
 
             {/* Clubs Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
               {clubs.map((club, index) => (
                 <div
                   key={club._id}
@@ -125,6 +124,39 @@ export default function CityPage() {
                   <ClubCard club={club} />
                 </div>
               ))}
+            </div>
+
+            {/* Internal Links */}
+            <div className="mt-8 pt-8 border-t border-slate-200">
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <span className="text-muted-foreground font-medium">Explore more:</span>
+                <Link
+                  href="/clubs"
+                  className="text-primary hover:underline font-medium"
+                >
+                  Browse All Clubs
+                </Link>
+                {otherCities && otherCities.length > 0 && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">Popular Cities:</span>
+                    {otherCities
+                      .filter((c) => c.slug.toLowerCase() !== citySlug.toLowerCase())
+                      .slice(0, 5)
+                      .map((city, idx) => (
+                        <span key={city.slug}>
+                          {idx > 0 && <span className="text-muted-foreground mx-1">•</span>}
+                          <Link
+                            href={`/city/${city.slug}`}
+                            className="text-primary hover:underline font-medium"
+                          >
+                            {city.name}
+                          </Link>
+                        </span>
+                      ))}
+                  </>
+                )}
+              </div>
             </div>
           </>
         ) : (

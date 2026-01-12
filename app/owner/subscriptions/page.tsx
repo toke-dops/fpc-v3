@@ -7,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, CheckCircle2, Clock, XCircle, Sparkles, Building2, Calendar, Users, BarChart3 } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, Clock, XCircle, Sparkles, Building2, Calendar, Users, BarChart3, Star, Mail, TrendingUp, Eye, Badge as BadgeIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -92,8 +92,9 @@ export default function MySubscriptionsPage() {
       borderColor: "border-primary/20",
       features: [
         { icon: Calendar, text: "Booking Link" },
-        { icon: Users, text: "Contact Email" },
-        { icon: BarChart3, text: "Analytics Dashboard" },
+        { icon: BarChart3, text: "Access to Analytics Dashboard" },
+        { icon: Mail, text: "Dedicated Email Support" },
+        { icon: TrendingUp, text: "Priority Listing over Basic Plan" },
       ],
     },
     featured: {
@@ -105,10 +106,12 @@ export default function MySubscriptionsPage() {
       bgColor: "bg-amber-50",
       borderColor: "border-amber-200",
       features: [
-        { icon: Sparkles, text: "Featured placement" },
+        { icon: Star, text: "Advert Placement" },
+        { icon: TrendingUp, text: "Top-of-List Placement" },
+        { icon: Eye, text: "Homepage and Special Placements" },
+        { icon: Mail, text: "Priority Support" },
+        { icon: BarChart3, text: "Advanced Analytics (All Business Features)" },
         { icon: Calendar, text: "Booking Link" },
-        { icon: Users, text: "Contact Email" },
-        { icon: BarChart3, text: "Analytics Dashboard" },
       ],
     },
   };

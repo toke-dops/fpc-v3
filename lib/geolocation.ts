@@ -73,12 +73,72 @@ export async function geocodeLocation(
   location: string
 ): Promise<{ lat: number; lng: number } | null> {
   try {
-    const trimmed = location.trim().toUpperCase();
+    const trimmed = location.trim();
     
-    // If it looks like a full postcode, try postcodes.io first
+    // Extract postcode from the search string (e.g., "Old Kent Road SE18" -> "SE18")
+    const postcodeMatch = trimmed.match(/\b([A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2})\b/i);
+    if (postcodeMatch) {
+      const postcode = postcodeMatch[1].replace(/\s+/g, " ").toUpperCase();
+      // Try postcodes.io first for postcodes
+      try {
+        const response = await fetch(
+          `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 200 && data.result) {
+            return {
+              lat: data.result.latitude,
+              lng: data.result.longitude,
+            };
+          }
+        }
+      } catch (e) {
+        // Fall through to Nominatim
+      }
+    }
+    
+    // For addresses with commas, try extracting the location part (e.g., "Royal Mail, Woolwich New Road" -> "Woolwich New Road")
+    // This helps when the first part is a business name
+    if (trimmed.includes(",")) {
+      const parts = trimmed.split(",").map(p => p.trim());
+      // Try the last part first (usually the location)
+      if (parts.length > 1) {
+        const locationPart = parts[parts.length - 1];
+        // If it looks like a street address, try geocoding just that part with Nominatim directly
+        if (/road|street|avenue|lane|way|drive|close|crescent|gardens/i.test(locationPart)) {
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                `${locationPart}, London, UK`
+              )}&limit=5&countrycodes=gb&addressdetails=1`,
+              {
+                headers: {
+                  "User-Agent": "UK-PadelFinder/1.0",
+                },
+              }
+            );
+            if (response.ok) {
+              const data = await response.json();
+              if (data.length > 0) {
+                const result = data[0];
+                return {
+                  lat: parseFloat(result.lat),
+                  lng: parseFloat(result.lon),
+                };
+              }
+            }
+          } catch (e) {
+            // Continue to main geocoding
+          }
+        }
+      }
+    }
+    
+    // If it looks like a full postcode only, try postcodes.io first
     const fullPostcodeRegex = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
     if (fullPostcodeRegex.test(trimmed)) {
-      const postcode = trimmed.replace(/\s+/g, " ");
+      const postcode = trimmed.replace(/\s+/g, " ").toUpperCase();
       const response = await fetch(
         `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`
       );
@@ -127,21 +187,54 @@ export async function geocodeLocation(
     }
 
     // Try as a general location search using Nominatim (OpenStreetMap)
-    // For partial postcodes, append "UK" to help with geocoding
-    const searchQuery = trimmed.length <= 4 && partialPostcodeRegex.test(trimmed)
-      ? `${trimmed}, UK`
-      : `${location}, UK`;
+    // For addresses with commas, try with and without "UK" suffix
+    // Also try with "London, UK" if it looks like a London address
+    let searchQueries = [`${trimmed}, UK`];
     
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        searchQuery
-      )}&limit=1`,
-      {
-        headers: {
-          "User-Agent": "UK-PadelFinder/1.0",
-        },
+    // If it contains "Road", "Street", etc., it might be a London address
+    if (/road|street|avenue|lane|way|drive/i.test(trimmed)) {
+      // Try with London explicitly
+      searchQueries.push(`${trimmed}, London, UK`);
+      // Also try without UK suffix
+      searchQueries.push(trimmed);
+    }
+    
+    // Try each search query
+    for (const searchQuery of searchQueries) {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            searchQuery
+          )}&limit=5&countrycodes=gb&addressdetails=1`,
+          {
+            headers: {
+              "User-Agent": "UK-PadelFinder/1.0",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.length > 0) {
+            // Prefer results that are in London or have "London" in the display name
+            const londonResult = data.find((r: any) => 
+              r.display_name?.toLowerCase().includes("london") ||
+              r.address?.city?.toLowerCase() === "london" ||
+              r.address?.county?.toLowerCase() === "greater london"
+            );
+            
+            const result = londonResult || data[0];
+            return {
+              lat: parseFloat(result.lat),
+              lng: parseFloat(result.lon),
+            };
+          }
+        }
+      } catch (e) {
+        // Continue to next query
+        continue;
       }
-    );
+    }
 
     if (response.ok) {
       const data = await response.json();

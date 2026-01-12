@@ -12,7 +12,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import { getPexelsImageDirect } from "@/lib/pexels-images";
 
 interface ClubCardProps {
-  club: Doc<"clubs"> & { distance?: number | null };
+  club: Doc<"clubs"> & { distance?: number | null | undefined };
 }
 
 export function ClubCard({ club }: ClubCardProps) {
@@ -76,16 +76,33 @@ export function ClubCard({ club }: ClubCardProps) {
           <div className="flex items-start gap-1.5 text-slate-500 text-sm mb-4">
             <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
             <div className="flex-1 min-w-0">
-              <span className="line-clamp-1">
-                {[club.city, club.postcode].filter(Boolean).join(", ") ||
-                  "United Kingdom"}
-              </span>
-              {club.distance !== null && club.distance !== undefined && (
-                <Badge variant="secondary" className="mt-1 text-xs font-semibold">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {formatDistance(club.distance)} away
-                </Badge>
-              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="line-clamp-1 flex-1">
+                  {[club.city, club.postcode].filter(Boolean).join(", ") ||
+                    "United Kingdom"}
+                </span>
+                {/* Proximity badge - show when distanceKm is available (from location search) */}
+                {(() => {
+                  const distanceKm = (club as any).distanceKm ?? (club as any).distance;
+                  if (typeof distanceKm === "number" && !isNaN(distanceKm) && distanceKm >= 0) {
+                    // Format: show meters if < 1km, otherwise km with 1 decimal
+                    const distanceText = distanceKm < 1 
+                      ? `${Math.round(distanceKm * 1000)} m away`
+                      : `${distanceKm.toFixed(1)} km away`;
+                    
+                    return (
+                      <Badge 
+                        variant="secondary" 
+                        className="text-xs font-semibold bg-primary/10 text-primary border-primary/30 whitespace-nowrap flex-shrink-0"
+                      >
+                        <MapPin className="w-3 h-3 mr-1" />
+                        {distanceText}
+                      </Badge>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
             </div>
           </div>
         </div>

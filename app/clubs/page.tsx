@@ -15,7 +15,7 @@ export default function ClubsPage() {
   const [searchTerm, setSearchTerm] = useState(""); // What we actually search for
   const [minRating, setMinRating] = useState(0);
   const [mustHaveBooking, setMustHaveBooking] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
@@ -24,7 +24,7 @@ export default function ClubsPage() {
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isGeocodingSearch, setIsGeocodingSearch] = useState(false);
-  const [searchRadius, setSearchRadius] = useState(0); // in miles
+  const [searchRadius, setSearchRadius] = useState(0); // in miles, default 0 = "Any distance"
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
@@ -42,22 +42,84 @@ export default function ClubsPage() {
     }
   }, []);
 
+  // Extract city name from search term if it looks like a city name
+  // This helps when user searches for "Gloucester" or "City of London, Greater London" - we want to filter by city
+  const extractedCity = useMemo(() => {
+    // ALWAYS check searchTerm FIRST for London variations - this ensures "City of London, Greater London" is normalized to "London"
+    // BEFORE checking userLocation.city, which might come from geocoding and be different
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      
+      // Handle London variations FIRST - normalize all London variations to "London"
+      // This handles "City of London", "Greater London", "City of London, Greater London", etc.
+      if (searchLower.includes("london")) {
+        return "London"; // Always return "London" for any London variation in search term
+      }
+      
+      // For other cities, try to extract from search term
+      let extracted = searchTerm.trim();
+      
+      // Split by comma and take first part
+      const parts = extracted.split(",");
+      extracted = parts[0].trim();
+      
+      // Remove "City of " prefix if present
+      extracted = extracted.replace(/^city of\s+/i, "").trim();
+      
+      // Remove "Greater " prefix if present
+      extracted = extracted.replace(/^greater\s+/i, "").trim();
+      
+      // If it's a single word or two words, it might be a city name
+      const words = extracted.split(/\s+/);
+      if (words.length <= 3 && words.length > 0) {
+        // Capitalize first letter of each word (e.g., "gloucester" -> "Gloucester")
+        return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+      }
+    }
+    
+    // Fallback to userLocation city if available (from geocoding), but normalize London
+    if (userLocation?.city) {
+      // Normalize London variations
+      if (userLocation.city.toLowerCase().includes("london")) {
+        return "London";
+      }
+      return userLocation.city;
+    }
+    
+    return undefined;
+  }, [searchTerm, userLocation?.city]);
+
   // Fetch clubs with filters
+  // When userLocation is set, use proximity search (searchLat/searchLng)
+  // Otherwise, use regular search without location
   const clubs = useQuery(api.clubs.list, {
     search: searchTerm || undefined,
     minRating: minRating > 0 ? minRating : undefined,
     hasBooking: mustHaveBooking || undefined,
-    categories:
-      selectedCategories.length > 0 ? selectedCategories : undefined,
+    amenities:
+      selectedAmenities.length > 0 ? selectedAmenities : undefined,
+    // Use new proximity search parameters when location is selected
+    searchLat: userLocation?.lat,
+    searchLng: userLocation?.lng,
+    maxDistanceKm: userLocation && searchRadius > 0 ? searchRadius * 1.60934 : undefined, // If searchRadius is 0 (Any distance) or no location, don't filter by distance. Convert miles to km: 1 mile = 1.60934 km
+    // Legacy parameters (kept for backward compatibility, but searchLat/searchLng take precedence)
     userLat: userLocation?.lat,
     userLng: userLocation?.lng,
-    radiusKm: searchRadius > 0 && userLocation ? searchRadius * 1.60934 : undefined, // Convert miles to km
-    searchCity: userLocation?.city || undefined, // City name for prioritizing related clubs
+    radiusKm: searchRadius > 0 && userLocation ? searchRadius * 1.60934 : undefined,
+    // Use extracted city from search term, or city from geocoded location
+    searchCity: extractedCity,
   });
 
-  // Fetch cities and categories for filters
+  // Debug: Log when location is set
+  useEffect(() => {
+    if (userLocation) {
+      console.log("[ClubsPage] User location set:", userLocation);
+    }
+  }, [userLocation]);
+
+  // Fetch cities and amenities for filters
   const cities = useQuery(api.clubs.getCities, { sortBy: "alphabetical" });
-  const allCategories = useQuery(api.clubs.getCategories, {});
+  const allAmenities = useQuery(api.clubs.getAmenities, {});
 
   // Handle search button click
   const handleSearch = async (location?: { lat: number; lng: number; city?: string }) => {
@@ -72,8 +134,8 @@ export default function ClubsPage() {
       return;
     }
     
-    // If search looks like a location, geocode it
-    if (trimmed && (mightBeLocation(trimmed) || isUKPostcode(trimmed))) {
+    // Always try to geocode if search term exists - this enables distance calculation for all location searches
+    if (trimmed) {
       setIsGeocodingSearch(true);
       setLocationError(null);
       
@@ -81,7 +143,7 @@ export default function ClubsPage() {
         const geocodedLocation = await geocodeLocation(trimmed);
         
         if (geocodedLocation) {
-          // Try to get city name from geocoding
+          // Try to get city name from geocoding for better search results
           try {
             const response = await fetch(
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${geocodedLocation.lat}&lon=${geocodedLocation.lng}&addressdetails=1`,
@@ -94,18 +156,23 @@ export default function ClubsPage() {
             if (response.ok) {
               const data = await response.json();
               const address = data.address || {};
-              const city = address.city || address.town || address.village || address.suburb || "";
-              setUserLocation({ ...geocodedLocation, city });
+              // Try to get a meaningful city name - prioritize city/town, fallback to borough/district
+              const city = address.city || address.town || address.village || 
+                          address.suburb || address.borough || address.district || 
+                          address.county || address.state || "London";
+              setUserLocation({ ...geocodedLocation, city: city || "London" });
             } else {
-              setUserLocation(geocodedLocation);
+              // Default to London if reverse geocoding fails (most UK searches are in London)
+              setUserLocation({ ...geocodedLocation, city: "London" });
             }
           } catch (e) {
-            setUserLocation(geocodedLocation);
+            // Default to London if reverse geocoding fails
+            setUserLocation({ ...geocodedLocation, city: "London" });
           }
           setLocationError(null);
         } else {
           // No exact location found - search will still work with text search
-          // but show nearby clubs by expanding radius
+          // but without distance calculation
           setUserLocation(null);
         }
       } catch (error) {
@@ -201,7 +268,7 @@ export default function ClubsPage() {
     setSearchTerm("");
     setMinRating(0);
     setMustHaveBooking(false);
-    setSelectedCategories([]);
+    setSelectedAmenities([]);
     setUserLocation(null);
     setLocationError(null);
     setSearchRadius(0);
@@ -211,25 +278,52 @@ export default function ClubsPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, minRating, mustHaveBooking, selectedCategories, userLocation, searchRadius]);
+  }, [searchTerm, minRating, mustHaveBooking, selectedAmenities, userLocation, searchRadius]);
 
   const isLoading = clubs === undefined;
 
-  // Add distance to clubs for display
+  // Use clubs directly from query - they're already sorted by distance when location search is active
+  // The backend returns distanceKm field when proximity search is used
   const clubsWithDistance = useMemo(() => {
     if (!clubs) return [];
-    return clubs.map((club) => ({
-      ...club,
-      distance: (club as any).distance ?? null,
-    }));
+    // Trust the server sort order - do NOT re-sort on client
+    return clubs.map((club) => {
+      // Backend returns distanceKm when proximity search is active
+      const distanceKm = (club as any).distanceKm ?? (club as any).distance ?? null;
+      return {
+        ...club,
+        distanceKm: distanceKm !== undefined && distanceKm !== null ? distanceKm : null,
+        // Keep legacy distance field for backward compatibility
+        distance: distanceKm,
+      };
+    });
   }, [clubs]);
 
-  // Paginate clubs: always show all featured clubs, paginate only regular clubs
+  // Paginate clubs: when location search is active, preserve strict distance sort from backend
+  // Otherwise, separate featured/regular and paginate
   const { paginatedClubs, totalPages, totalClubs, regularClubsCount } = useMemo(() => {
     if (!clubsWithDistance || clubsWithDistance.length === 0) {
       return { paginatedClubs: { featured: [], regular: [] }, totalPages: 0, totalClubs: 0, regularClubsCount: 0 };
     }
 
+    // When location search is active, backend already sorted by distance - preserve that order
+    if (userLocation) {
+      // All clubs are already sorted by distance - just paginate them
+      const totalClubsCount = clubsWithDistance.length;
+      const totalPages = Math.max(1, Math.ceil(totalClubsCount / itemsPerPage));
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedClubs = clubsWithDistance.slice(startIndex, endIndex);
+      
+      return {
+        paginatedClubs: { featured: [], regular: paginatedClubs },
+        totalPages,
+        totalClubs: totalClubsCount,
+        regularClubsCount: totalClubsCount,
+      };
+    }
+
+    // No location search - use default featured/regular separation
     const featuredClubs = clubsWithDistance.filter((club) => club.is_featured);
     const regularClubs = clubsWithDistance.filter((club) => !club.is_featured);
 
@@ -266,10 +360,13 @@ export default function ClubsPage() {
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-black text-slate-900 mb-2">
-            Browse Clubs
+          <h1 className="text-4xl font-black text-slate-900 mb-4">
+            Padel Clubs Directory
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-4 leading-relaxed">
+            Discover padel clubs across the United Kingdom. Search by location, city, postcode, or club name. Browse ratings, read reviews, and find the perfect court for your next game.
+          </p>
+          <p className="text-muted-foreground text-sm">
             {isLoading
               ? "Loading clubs..."
               : isGeocodingSearch
@@ -295,13 +392,13 @@ export default function ClubsPage() {
             onMinRatingChange={setMinRating}
             mustHaveBooking={mustHaveBooking}
             onMustHaveBookingChange={setMustHaveBooking}
-            selectedCategories={selectedCategories}
-            onCategoriesChange={setSelectedCategories}
+            selectedAmenities={selectedAmenities}
+            onAmenitiesChange={setSelectedAmenities}
             searchRadius={searchRadius}
             onSearchRadiusChange={setSearchRadius}
             showRadiusFilter={true}
             cities={cities ?? []}
-            categories={allCategories ?? []}
+            amenities={allAmenities ?? []}
             onClearFilters={handleClearFilters}
             onUseLocation={handleUseLocation}
             isLocationLoading={isLocationLoading}
@@ -355,7 +452,7 @@ export default function ClubsPage() {
           <div className="flex items-center justify-center py-24">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
-        ) : clubsWithDistance.length > 0 ? (
+        ) : clubsWithDistance && clubsWithDistance.length > 0 ? (
           <>
             {/* Items per page selector and pagination info */}
             <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -382,40 +479,15 @@ export default function ClubsPage() {
                 {totalPages > 0 && (
                   <>
                     Page {currentPage} of {totalPages} 
-                    {regularClubsCount > 0 && ` (${regularClubsCount} regular clubs${paginatedClubs.featured.length > 0 ? `, ${paginatedClubs.featured.length} featured` : ''})`}
+                    {regularClubsCount > 0 && ` (${regularClubsCount} clubs${paginatedClubs.featured.length > 0 ? `, ${paginatedClubs.featured.length} featured` : ''})`}
                   </>
                 )}
               </div>
             </div>
 
-            {/* Featured Clubs */}
-            {paginatedClubs.featured.length > 0 && (
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                  Featured Clubs
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {paginatedClubs.featured.map((club, index) => (
-                    <div
-                      key={club._id}
-                      className="opacity-0 animate-fade-in"
-                      style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
-                    >
-                      <ClubCard club={club} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Regular Clubs */}
-            {paginatedClubs.regular.length > 0 && (
+            {/* Clubs List - when location search is active, show all clubs sorted by distance */}
+            {userLocation ? (
               <div>
-                {paginatedClubs.featured.length > 0 && (
-                  <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                    All Clubs
-                  </h2>
-                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {paginatedClubs.regular.map((club, index) => (
                     <div
@@ -428,13 +500,57 @@ export default function ClubsPage() {
                   ))}
                 </div>
               </div>
+            ) : (
+              <>
+                {/* Featured Clubs */}
+                {paginatedClubs.featured.length > 0 && (
+                  <div className="mb-12">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-6">
+                      Featured Clubs
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {paginatedClubs.featured.map((club, index) => (
+                        <div
+                          key={club._id}
+                          className="opacity-0 animate-fade-in"
+                          style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
+                        >
+                          <ClubCard club={club} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Regular Clubs */}
+                {paginatedClubs.regular.length > 0 && (
+                  <div>
+                    {paginatedClubs.featured.length > 0 && (
+                      <h2 className="text-2xl font-bold text-slate-900 mb-6">
+                        All Clubs
+                      </h2>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {paginatedClubs.regular.map((club, index) => (
+                        <div
+                          key={club._id}
+                          className="opacity-0 animate-fade-in"
+                          style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
+                        >
+                          <ClubCard club={club} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-sm text-muted-foreground">
-                  Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, regularClubsCount)} of {regularClubsCount} regular clubs
+                  Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, regularClubsCount)} of {regularClubsCount} clubs
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
