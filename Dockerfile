@@ -1,16 +1,46 @@
-FROM node:20-slim
+# syntax = docker/dockerfile:1
+
+FROM node:20-slim AS base
+
+ARG PORT=8080
+
+ENV NEXT_TELEMETRY_DISABLED=1
 
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install
+# Dependencies
+FROM base AS dependencies
 
+COPY package.json ./
+RUN npm i
+
+# Build
+FROM base AS build
+
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+
 RUN npm run build
 
-ENV PORT=8080
-ENV HOSTNAME=0.0.0.0
+# Run
+FROM base AS run
 
-EXPOSE 8080
+ENV NODE_ENV=production
+ENV PORT=$PORT
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+COPY --from=build /app/public ./public
+COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE $PORT
+
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["npm", "start"]
