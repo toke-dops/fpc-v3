@@ -5,8 +5,11 @@ import { api } from "@/convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-// Force dynamic rendering since we use auth() which uses headers()
+// Force dynamic rendering - this route must be server-side only
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,4 +46,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

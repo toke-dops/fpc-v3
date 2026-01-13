@@ -67,6 +67,13 @@ const nextConfig = {
   // Enable static page generation where possible
   output: 'standalone',
   
+  // Ensure API routes are not statically generated
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
   // SEO: Redirects and rewrites
   async redirects() {
     return [
