@@ -6,7 +6,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --prefer-offline --no-fund
 
+# Copy config and temporarily disable standalone output
+COPY next.config.js ./
+RUN sed -i "s/output: 'standalone'/\/\/ output: 'standalone'/" next.config.js || \
+    sed -i "s/output: \"standalone\"/\/\/ output: \"standalone\"/" next.config.js
+
+# Copy the rest of the application
 COPY . .
+
+# Build without standalone
 RUN npm run build
 
 FROM node:20-alpine
@@ -23,7 +31,7 @@ COPY package.json ./
 # Install only production dependencies
 RUN npm install --only=production --no-audit --prefer-offline --no-fund
 
-# Copy built application and config
+# Copy built application
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.js ./

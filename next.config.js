@@ -65,7 +65,7 @@ const nextConfig = {
   optimizeFonts: true,
   
   // Enable static page generation where possible
-  output: 'standalone',
+  // output: 'standalone', // Temporarily disabled for Hyperlift compatibility
   
   // SEO: Redirects and rewrites
   async redirects() {
