@@ -6,7 +6,9 @@ import { api } from "@/convex/_generated/api";
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 // Force dynamic rendering - this route must be server-side only
+// These exports prevent Next.js from trying to statically generate this route
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 export const runtime = 'nodejs';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
