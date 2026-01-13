@@ -13,6 +13,10 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
  * Usage: POST /api/billing/sync-from-clerk
  * No body required - uses authenticated user's Clerk ID
  */
+
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();

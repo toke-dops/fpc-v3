@@ -10,6 +10,10 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
  * Called automatically after successful payment to sync subscription to Convex
  * This bypasses webhooks and directly creates the subscription record
  */
+
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();

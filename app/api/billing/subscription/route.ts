@@ -5,6 +5,9 @@ import { api } from "@/convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();

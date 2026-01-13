@@ -8,6 +8,10 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 /**
  * Upgrade subscription - immediate activation
  */
+
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();

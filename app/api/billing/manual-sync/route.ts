@@ -13,6 +13,12 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
  * For existing users: This will check Clerk for subscriptions and sync them
  * For future users: Webhooks will handle sync automatically, but this can be used to verify
  * 
+ */
+
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+
+/**
  * Usage: POST /api/billing/manual-sync
  */
 export async function POST(request: NextRequest) {

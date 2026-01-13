@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
  * This route redirects users to the Clerk PricingTable checkout page.
  * Clerk's PricingTable component handles the actual checkout flow.
  */
+
+// Force dynamic rendering since we use auth() which uses headers()
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();

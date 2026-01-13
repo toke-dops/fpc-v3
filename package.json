@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npx convex codegen",
+    "prebuild": "npx convex codegen --yes",
     "build": "next build",
     "start": "next start",
     "import:csv": "npx tsx scripts/import-csv.ts",
