@@ -3,19 +3,32 @@ node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Next.js
-.next
-out
-build
+.pnp
+.pnp.js
 
 # Testing
 coverage
 .nyc_output
 
+# Next.js
+.next
+out
+build
+dist
+
+# Production
+*.log
+
 # Misc
 .DS_Store
 *.pem
+.env*.local
+.env
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Local env files
 .env*.local
@@ -43,7 +56,7 @@ convex/_generated
 .gitignore
 
 # Docker
-Dockerfile
+Dockerfile*
 .dockerignore
 docker-compose.yml
 
@@ -54,3 +67,6 @@ README.md
 # Clerk configuration
 .clerk
 
+# Other
+*.log
+.cache
