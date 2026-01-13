@@ -1,17 +1,17 @@
+// Route segment config - MUST be at the top before any imports
+// This prevents Next.js from trying to statically generate this route
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const runtime = 'nodejs';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
-// Force dynamic rendering - this route must be server-side only
-// These exports prevent Next.js from trying to statically generate this route
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-export const runtime = 'nodejs';
-export const fetchCache = 'force-no-store';
-export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {

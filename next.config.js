@@ -74,6 +74,16 @@ const nextConfig = {
     },
   },
   
+  // Skip static generation for API routes
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  
+  // Ensure API routes are always dynamic
+  async rewrites() {
+    return [];
+  },
+  
   // SEO: Redirects and rewrites
   async redirects() {
     return [

@@ -1,3 +1,7 @@
+// Route segment config - MUST be at the top
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from "next/server";
 
 /**

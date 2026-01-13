@@ -7,19 +7,30 @@ import { v } from "convex/values";
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        return null;
+      }
+
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_auth_provider_user_id", (q) =>
+          q.eq("auth_provider_user_id", identity.subject)
+        )
+        .first();
+
+      return user;
+    } catch (error: any) {
+      // Log the error for debugging
+      console.error("[getCurrentUser] Error:", error);
+      console.error("[getCurrentUser] This usually means:");
+      console.error("  1. CLERK_JWT_ISSUER_DOMAIN is not set in Convex Dashboard");
+      console.error("  2. JWT template 'convex' is not configured in Clerk");
+      console.error("  3. The issuer domain doesn't match your Clerk configuration");
+      // Return null instead of throwing to prevent breaking the UI
       return null;
     }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_auth_provider_user_id", (q) =>
-        q.eq("auth_provider_user_id", identity.subject)
-      )
-      .first();
-
-    return user;
   },
 });
 
