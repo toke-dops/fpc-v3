@@ -103,11 +103,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .map((club) => ({
         url: `${baseUrl}/clubs/${club.slug}`,
-        lastModified: club.updated_at 
-          ? new Date(club.updated_at) 
-          : club._creationTime 
-            ? new Date(club._creationTime)
-            : currentDate,
+        lastModified: club._creationTime 
+          ? new Date(club._creationTime)
+          : currentDate,
         changeFrequency: 'weekly' as const,
         priority: club.is_featured ? 0.9 : 0.8,
       }))
