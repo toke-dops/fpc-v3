@@ -94,22 +94,27 @@ interface AdSenseScriptProps {
 }
 
 export function AdSenseScript({ publisherId }: AdSenseScriptProps) {
+  // Use publisher ID from props or environment variable
+  const adSenseId = publisherId || process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
+  
   // Only load in production
   if (process.env.NODE_ENV !== "production" && !process.env.NEXT_PUBLIC_ENABLE_ADS_DEV) {
     return null;
   }
 
-  if (!publisherId) {
+  if (!adSenseId) {
     console.warn("AdSense: No publisher ID provided");
     return null;
   }
 
+  // Use afterInteractive strategy - Next.js Script component handles script placement optimally
+  // This matches Google's recommended code format
   return (
     <Script
       async
-      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`}
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseId}`}
       crossOrigin="anonymous"
-      strategy="lazyOnload"
+      strategy="afterInteractive"
     />
   );
 }
