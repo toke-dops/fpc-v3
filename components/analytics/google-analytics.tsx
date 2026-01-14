@@ -14,12 +14,15 @@ interface GoogleAnalyticsProps {
  * Get your Measurement ID from: https://analytics.google.com/
  */
 export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+  // Use measurement ID from props or environment variable
+  const gaId = measurementId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  
   // Don't load in development unless explicitly enabled
   if (process.env.NODE_ENV !== "production" && !process.env.NEXT_PUBLIC_ENABLE_GA_DEV) {
     return null;
   }
 
-  if (!measurementId) {
+  if (!gaId) {
     console.warn("Google Analytics: No measurement ID provided");
     return null;
   }
@@ -28,7 +31,7 @@ export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
     <>
       <Script
         strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
       <Script
         id="google-analytics"
@@ -38,9 +41,7 @@ export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${measurementId}', {
-              page_path: window.location.pathname,
-            });
+            gtag('config', '${gaId}');
           `,
         }}
       />
